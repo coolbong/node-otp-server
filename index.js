@@ -214,11 +214,15 @@ function main() {
   });
 
   var key1 = base32toHexString(keys[0]);
-  // make otp
+
+  // get time data
+
+  // generate hmac sha1
   // console.log(key1);
   // mac.hmac_sha1(key1, )
 
-  //
+  // make otp
+  // 6 digit
 
 }
 
