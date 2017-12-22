@@ -182,7 +182,8 @@ var mac = require('node-cardcrypto').mac;
 var keys = ['tzu5 p5gv enps qmze xqnp yhtq l4ds 3gil',
 'ri6w r5fi adkd 6wuj qavn sovu 36u3 huq5',
 '5dhj qetr vlee jj3q vyad 7quc 7p77 yu2f',
-'pk7m db4c tabq ozpb do3m rtsm 67j5 p64h'];
+'pk7m db4c tabq ozpb do3m rtsm 67j5 p64h',
+'xaqpuafmbatiao7vrapuk2bnmhotut2e'];
 
 
 function base32toHexString(data) {
@@ -202,20 +203,60 @@ function hexStringtoBase32(data) {
   return data;
 }
 
+function time2buffer(time) {
+  var MAX_UINT32 = 0xFFFFFFFF;
+
+// write
+  var big = ~~(time / MAX_UINT32);
+  var low = (time % MAX_UINT32) - big;
+
+  var b = Buffer.alloc(8);
+  b.writeUInt32BE(big, 0);
+  b.writeUInt32BE(low, 4);
+
+  return b;
+}
+
+
+function generateResponseCode(hash) {
+  var hash = Buffer.from(hash, 'hex');
+  var offset = hash[hash.length-1] & 0xf;
+  console.log(offset);
+  var truncatedHash = hash.readInt32BE(offset) & 0x7fffffff;
+
+  console.log(truncatedHash);
+  //console.log(hash.readUInt32BE(offset));
+}
+
 function main() {
   console.log('hello world');
   keys.forEach(function(item) {
-    //console.log('base32 input : ' + item);
+    console.log('base32: ' + item);
     var hex = base32toHexString(item);
-    //console.log('buffer output: ' + hex);
+    console.log('hmackey: ' + hex);
     var base32 = hexStringtoBase32(hex);
-    // console.log('buffer to base32 : ' + base32);
-    // console.log('');
+     console.log('buffer to base32 : ' + base32);
+     console.log('');
   });
 
-  var key1 = base32toHexString(keys[0]);
+  var key4 = base32toHexString(keys[4]);
 
   // get time data
+  var time_data = 50463512; // long value
+  var time_arr = Buffer.alloc(8);
+
+  time_arr = time2buffer(time_data);
+
+  //time_arr.writeUInt32BE((time_data >>> 32), 0);
+  time_arr.writeUInt32BE(time_data, 4);
+  //00000000 03020318
+  //00030203 03020318
+  console.log(time_arr.toString('hex'));
+  var result = mac.hmac_sha1(key4, time_arr);
+  generateResponseCode(result);
+
+  console.log(result);
+
 
   // generate hmac sha1
   // console.log(key1);
