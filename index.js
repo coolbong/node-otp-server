@@ -217,11 +217,24 @@ function time2buffer(time) {
   return b;
 }
 
+function formatHex(buf) {
+  buf = buf.toString('hex').toUpperCase();
+  buf = buf.replace(/(\w{2})/g, "$1 ").trim();
+  //console.log(buf);
+  return buf;
+}
+
 
 function generateResponseCode(hash) {
   var hash = Buffer.from(hash, 'hex');
   var offset = hash[hash.length-1] & 0xf;
-  console.log(offset);
+  var temp = hash.slice(offset, offset+4);
+  console.log('hash: ' + formatHex(hash));
+  //console.log('hash: ' + hash)
+  console.log('offset: ' + offset);
+  console.log('value: ' + temp.toString('hex'));
+
+
   var truncatedHash = hash.readInt32BE(offset) & 0x7fffffff;
 
   console.log(truncatedHash);
@@ -240,7 +253,7 @@ function main() {
   });
 
   var key4 = base32toHexString(keys[4]);
-
+  console.log('key: ' + key4);
   // get time data
   var time_data = 50463512; // long value
   var time_arr = Buffer.alloc(8);
@@ -250,7 +263,6 @@ function main() {
   //time_arr.writeUInt32BE((time_data >>> 32), 0);
   time_arr.writeUInt32BE(time_data, 4);
   //00000000 03020318
-  //00030203 03020318
   console.log(time_arr.toString('hex'));
   var result = mac.hmac_sha1(key4, time_arr);
   generateResponseCode(result);
